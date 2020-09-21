@@ -1,21 +1,72 @@
-# substrate-proof-of-existence
+# Substrate Proof of Existence Module
 
-A simple [Proof of Existence](https://en.wikipedia.org/wiki/Proof_of_Existence) chain built with [Parity's Substrate](https://github.com/paritytech/substrate).
+This is a simple Substrate runtime module to store online distributed [proof of existence](https://www.proofofexistence.com/) for any file.
 
-![Image of UI](./proof-of-existence-ui/poe-ui.png)
+## Purpose
 
-1. Start your dev chain
-    ```
-    cd proof-of-existence
-    ./build.sh
-    cargo build --release
-    ./target/release/proof-of-existence --dev
-    ```
+This module enables users submit a proof of existence for a file. This proof of existence may also be used as a soft measure of ownership.
 
-2. Start the `proof-of-existence-ui`
+Files are not directly uploaded to the blockchain. Instead, a [file digest](https://en.wikipedia.org/wiki/File_verification) is generated, and the resulting digest is stored on chain with the time of upload and the user who made the claim.
 
-    ```
-    cd proof-of-existence-ui
-    yarn install
-    yarn run dev
-    ```
+Anyone who has the source file can also generate the same digest and check the proof of existence on-chain.
+
+## Dependencies
+
+### Traits
+
+This module depends on an implementation of the `Currency` trait. This can be done by the SRML Balances module.
+
+### Modules
+
+This module depends on the SRML Timestamp module.
+
+## Installation
+
+### Runtime `Cargo.toml`
+
+To add this module to your runtime, simply include the following to your runtime's `Cargo.toml` file:
+
+```rust
+[dependencies.poe]
+default_features = false
+package = 'proof-of-existence'
+git = 'https://github.com/substrate-developer-hub/substrate-proof-of-existence.git'
+```
+
+and update your runtime's `std` feature to include this module:
+
+```rust
+std = [
+    ...
+    'poe/std',
+]
+```
+
+### Runtime `lib.rs`
+
+You should implement it's trait like so:
+
+```rust
+impl poe::Trait for Runtime {
+	type Currency = Balances;
+	type Event = Event;
+}
+```
+
+and include it in your `construct_runtime!` macro:
+
+```rust
+POE: poe::{Module, Call, Storage, Event<T>},
+```
+
+### Genesis Configuration
+
+This template module does not have any genesis configuration.
+
+## Reference Docs
+
+You can view the reference docs for this module by running:
+
+```
+cargo doc --open
+```
